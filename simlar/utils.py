@@ -81,15 +81,25 @@ def build_config(config):
                 raise ValueError(f"Missing key '{key}' in user configuration")
             if not config[key] in list_available_devices():
                 raise ValueError(f"Unavailable device '{config[key]}' requested")
+        elif key == 'DEBUG':
+            if not key in config:
+                raise ValueError(f"Missing key '{key}' in user configuration")
         else:
             if not key in config:
                 raise ValueError(f"Missing key '{key}' in user configuration")
             if isinstance(default_config[key], str):
                 default_config[key] = load_config(default_config[key])
+            #if isinstance(config[key], str) and key in default_config and isinstance(default_config[key], dict):
+                #config[key] = load_config(config[key])
             if isinstance(config[key], str):
                 config[key] = load_config(config[key])
             validate_config_keys(config[key],default_config[key])
 
+            if type(config[key]) != type(default_config[key]):
+                try:
+                    config[key] = type(default_config[key])(config[key])
+                except Exception as e:
+                    raise ValueError(f"Type mismatch for key '{key}': expected {type(default_config[key])}, got {type(config[key])}. Error: {e}")
 
     return config
 
